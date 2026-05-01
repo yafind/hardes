@@ -3,7 +3,6 @@ class_name Player
 
 enum PlayerState { IDLE, MOVE, SKILL_1, SKILL_2, DEATH }
 
-@export var wall_slide_factor: float = 0.7
 @export var skill_1_damage: int = 10
 @export var skill_2_damage_reduction: float = 0.2
 @export var skill_3_damage: int = 5
