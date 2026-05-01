@@ -161,10 +161,11 @@ func _cast_skill_3():
 	_spawn_projectile(SKILL_3_SCENE, {"damage": skill_3_damage, "radius": skill_3_radius})
 
 func _cast_skill_4():
-	var skill_target = _find_nearest_enemy()
+	# Use priority targeting for skill 4 (auto-aim at most threatening enemy)
+	var skill_target = _find_priority_enemy()
 	if skill_target:
 		var dir = (skill_target.global_position - global_position).normalized()
-		_spawn_projectile(SKILL_4_SCENE, {"direction": dir, "damage": skill_4_damage, "max_distance": skill_4_range})
+		_spawn_projectile(SKILL_4_SCENE, {"direction": dir, "damage": skill_4_damage, "max_distance": skill_4_range, "target": skill_target})
 
 func _spawn_projectile(scene: PackedScene, props: Dictionary):
 	if not scene:
@@ -221,11 +222,37 @@ func _find_nearest_enemy() -> Node2D:
 	for e: Node2D in get_tree().get_nodes_in_group("team_enemy"):
 		if not is_instance_valid(e):
 			continue
+		# Prioritize enemies that are already engaged with allies or closest to castle
 		var d_sq: float = global_position.distance_squared_to(e.global_position)
 		if d_sq < min_dist_sq:
 			min_dist_sq = d_sq
 			nearest = e
 	return nearest
+
+## Find the most threatening enemy (closest to player castle or attacking ally)
+func _find_priority_enemy() -> Node2D:
+	var priority_target: Node2D = null
+	var best_score: float = INF
+	
+	# Get player castle position as reference
+	var castle := get_tree().get_first_node_in_group("player_castle") as Node2D
+	var castle_pos := castle.global_position if castle else Vector2.ZERO
+	
+	for e: Node2D in get_tree().get_nodes_in_group("team_enemy"):
+		if not is_instance_valid(e):
+			continue
+		
+		var dist_to_castle := e.global_position.distance_to(castle_pos)
+		var dist_to_player := e.global_position.distance_to(global_position)
+		
+		# Score: lower is better (closer to castle + closer to player = higher threat)
+		var score := dist_to_castle * 0.6 + dist_to_player * 0.4
+		
+		if score < best_score:
+			best_score = score
+			priority_target = e
+	
+	return priority_target if priority_target else _find_nearest_enemy()
 
 func _start_cooldown(idx: int, time: float):
 	skills_ready[idx] = false

@@ -1,4 +1,7 @@
-.godot/
+```
 *.import
-*.translation
 *.tmp
+*.log
+.cache/
+.sconsign.dblite
+```
