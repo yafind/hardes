@@ -3,7 +3,7 @@
 ## Pauses during "slack" wave mode unless enemy enters proximity.
 extends Area2D
 
-@export var knight_scene: PackedScene = preload("res://entities/player_knight.tscn")
+@export var knight_scene: PackedScene = preload("res://entities/ally/player_knight.tscn")
 @export var spawn_interval: float = 8.0
 @export var max_active_knights: int = 6
 @export var spawn_radius: float = 60.0
