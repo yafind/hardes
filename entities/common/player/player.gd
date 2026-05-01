@@ -17,8 +17,8 @@ enum PlayerState { IDLE, MOVE, SKILL_1, SKILL_2, DEATH }
 @export var combo_reset_time: float = 1.5
 @export var skill_icons: Array[Texture2D] = []
 
-const SKILL_3_SCENE = preload("res://entities/player/skills/fire_zone.tscn")
-const SKILL_4_SCENE = preload("res://entities/player/skills/arrow.tscn")
+const SKILL_3_SCENE = preload("res://entities/common/player/skills/fire_zone.tscn")
+const SKILL_4_SCENE = preload("res://entities/common/player/skills/arrow.tscn")
 
 var current_state: PlayerState = PlayerState.IDLE
 var combo_counter: int = 0

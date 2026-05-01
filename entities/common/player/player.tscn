@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cmhcdimfeu74y"]
 
-[ext_resource type="Script" uid="uid://v0bhkomvn1s8" path="res://entities/player/player.gd" id="1_tuyoq"]
+[ext_resource type="Script" uid="uid://v0bhkomvn1s8" path="res://entities/common/player/player.gd" id="1_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://xglhso7f2fwy" path="res://assets/Tiny Swords (Free Pack)/Units/Black Units/Warrior/Warrior_Attack1.png" id="2_fjrip"]
 [ext_resource type="Texture2D" uid="uid://6uiaqrrsdbo0" path="res://assets/Tiny Swords (Free Pack)/Units/Black Units/Warrior/Warrior_Attack2.png" id="3_smehm"]
 [ext_resource type="Texture2D" uid="uid://b4fc3iiu8bgaw" path="res://assets/Tiny Swords (Free Pack)/Units/Black Units/Warrior/Warrior_Guard.png" id="4_ur7pv"]
