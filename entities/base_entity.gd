@@ -26,6 +26,7 @@ extends CharacterBody2D
 class_name BaseEntity
 
 enum Faction { PLAYER, ENEMY }
+enum TargetPriority { LOW = 0, MEDIUM = 50, HIGH = 80, CRITICAL = 200 }
 
 # ── Exports ───────────────────────────────────────────────────────────────────
 @export var faction: Faction = Faction.PLAYER
@@ -38,6 +39,12 @@ enum Faction { PLAYER, ENEMY }
 @export var search_timeout:  float = 3.0
 ## How often target priority is re-evaluated (seconds). Min 0.3.
 @export var priority_interval: float = 0.3
+## Multiplier for speed when moving to far targets (prevents clumping)
+@export var approach_speed_factor: float = 1.0
+## Minimum distance to keep from other friendly units (avoid stacking)
+@export var separation_distance: float = 40.0
+## Weight of separation behavior (0 = disabled)
+@export var separation_weight: float = 0.6
 
 # ── State ─────────────────────────────────────────────────────────────────────
 enum State { IDLE, PATROL, CHASE, SEARCH, ATTACK, DEATH }
@@ -188,35 +195,35 @@ func _is_castle(node: Node) -> bool:
 ## Called every priority_interval seconds, and on detection events.
 func _pick_best_target() -> void:
 	var best: Node2D    = null
-	var best_prio: int  = -1
+	var best_prio: int  = TargetPriority.LOW
 	var best_d_sq: float = INF
 
 	# Purge stale references (freed bodies that missed body_exited)
 	_candidates = _candidates.filter(func(c): return is_instance_valid(c))
 
 	# ── Candidates from DetectionArea (enemy units in range) ──
-	# Priority 200 = unit within melee range (fight it immediately)
-	# Priority  80 = unit detected but not yet in melee range (fight before marching to castle)
+	# Priority CRITICAL = unit within melee range (fight it immediately)
+	# Priority HIGH = unit detected but not yet in melee range (fight before marching to castle)
 	for candidate: Node2D in _candidates:
 		if not is_instance_valid(candidate):
 			continue
 		var d_sq := global_position.distance_squared_to(candidate.global_position)
-		var prio := 200 if d_sq <= attack_range * attack_range else 80
+		var prio := TargetPriority.CRITICAL if d_sq <= attack_range * attack_range else TargetPriority.HIGH
 		if prio > best_prio or (prio == best_prio and d_sq < best_d_sq):
 			best = candidate
 			best_prio = prio
 			best_d_sq = d_sq
 
 	# ── Opposing castle — mid priority (march here when no enemies nearby) ──
-	# Priority 50: beats patrol (no target) but loses to any detected unit (80/200)
+	# Priority MEDIUM: beats patrol (no target) but loses to any detected unit (HIGH/CRITICAL)
 	var castle_group := "player_castle" if faction == Faction.ENEMY else "enemy_castle"
 	for castle: Node in get_tree().get_nodes_in_group(castle_group):
 		if not is_instance_valid(castle):
 			continue
 		var d_sq := global_position.distance_squared_to((castle as Node2D).global_position)
-		if 50 > best_prio or (50 == best_prio and d_sq < best_d_sq):
+		if TargetPriority.MEDIUM > best_prio or (TargetPriority.MEDIUM == best_prio and d_sq < best_d_sq):
 			best = castle as Node2D
-			best_prio = 50
+			best_prio = TargetPriority.MEDIUM
 			best_d_sq = d_sq
 
 	target = best
@@ -238,7 +245,8 @@ func _physics_process(delta: float) -> void:
 		_pick_best_target()
 
 	# Cache distance to current target
-	var dist_sq := global_position.distance_squared_to(target.global_position) 		if is_instance_valid(target) else INF
+	var dist_sq := global_position.distance_squared_to(target.global_position) if is_instance_valid(target) else INF
+	var target_dist_factor := clampf(global_position.distance_to(target.global_position) / detection_range, 0.0, 1.0) if is_instance_valid(target) else 1.0
 
 	match state:
 		State.IDLE:
@@ -257,6 +265,11 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.IDLE)
 			else:
 				var dir := global_position.direction_to(patrol_target)
+				# Apply separation during patrol
+				if separation_weight > 0.0:
+					var sep_dir := _compute_separation()
+					if sep_dir.length_squared() > 0.01:
+						dir = (dir + sep_dir * separation_weight).normalized()
 				velocity = dir * (speed * 0.4)
 				_face(dir.x < 0)
 
@@ -409,7 +422,19 @@ func _move_via_nav(dest: Vector2) -> void:
 				dir = global_position.direction_to(next)
 	if dir == Vector2.ZERO and global_position.distance_squared_to(dest) > 100.0:
 		dir = global_position.direction_to(dest)
-	velocity = dir * speed
+	
+	# Apply separation behavior to avoid stacking with friendly units
+	if separation_weight > 0.0:
+		var sep_dir := _compute_separation()
+		if sep_dir.length_squared() > 0.01:
+			dir = (dir + sep_dir * separation_weight).normalized()
+	
+	# Apply approach speed factor for distant targets (prevents clumping)
+	var current_speed := speed
+	if approach_speed_factor != 1.0 and global_position.distance_to(dest) > attack_range * 2.0:
+		current_speed *= approach_speed_factor
+	
+	velocity = dir * current_speed
 	_face(dir.x < 0)
 	# Stuck detection
 	_stuck_timer -= get_physics_process_delta_time()
@@ -418,6 +443,23 @@ func _move_via_nav(dest: Vector2) -> void:
 		if global_position.distance_squared_to(_last_pos) < _STUCK_DIST_SQ and dir != Vector2.ZERO:
 			velocity += Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * speed
 		_last_pos = global_position
+
+## Compute separation direction from nearby friendly units
+func _compute_separation() -> Vector2:
+	var sep := Vector2.ZERO
+	var count := 0
+	var faction_group := "team_player" if faction == Faction.PLAYER else "team_enemy"
+	for other: Node in get_tree().get_nodes_in_group(faction_group):
+		if other == self or not is_instance_valid(other):
+			continue
+		var other_pos := (other as Node2D).global_position
+		var dist_sq := global_position.distance_squared_to(other_pos)
+		if dist_sq < separation_distance * separation_distance and dist_sq > 0.01:
+			sep += (global_position - other_pos).normalized() / sqrt(dist_sq)
+			count += 1
+	if count > 0:
+		sep /= float(count)
+	return sep.normalized()
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
