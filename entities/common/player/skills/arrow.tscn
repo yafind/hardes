@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://sbekc08iqu2c"]
 
 [ext_resource type="Texture2D" uid="uid://fgfqq1mgvs4s" path="res://assets/Tiny Swords (Free Pack)/Units/Red Units/Archer/Arrow.png" id="1_3hlpd"]
-[ext_resource type="Script" uid="uid://clkjs2ck403n6" path="res://entities/player/skills/arrow.gd" id="1_5y3l2"]
+[ext_resource type="Script" uid="uid://clkjs2ck403n6" path="res://entities/common/player/skills/arrow.gd" id="1_5y3l2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5dve5"]
 size = Vector2(25, 25)

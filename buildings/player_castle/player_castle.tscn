@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://crp4800hlfu4t" path="res://buildings/player_castle/player_castle.gd" id="1_ns4ng"]
 [ext_resource type="Texture2D" uid="uid://dl2smab61ety5" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png" id="1_xs034"]
-[ext_resource type="PackedScene" uid="uid://cmhcdimfeu74y" path="res://entities/player/player.tscn" id="2_g6306"]
+[ext_resource type="PackedScene" uid="uid://cmhcdimfeu74y" path="res://entities/common/player/player.tscn" id="2_g6306"]
 [ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="2_ns4ng"]
 [ext_resource type="Texture2D" uid="uid://bod07o3jcwsol" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="5_wf2gv"]
 [ext_resource type="Texture2D" uid="uid://bepjyd5m6aubh" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="6_wimnj"]

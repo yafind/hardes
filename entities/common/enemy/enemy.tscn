@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cy06nlddsnm8p" path="res://assets/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Idle.png" id="6_a8fs5"]
 [ext_resource type="Texture2D" uid="uid://bvmgjvesw5q17" path="res://assets/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Run.png" id="7_7vrfk"]
 [ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="8_g0wcc"]
-[ext_resource type="Script" uid="uid://bl4q7tmc2ci3h" path="res://entities/enemy/enemy.gd" id="9_enemy"]
+[ext_resource type="Script" uid="uid://bl4q7tmc2ci3h" path="res://entities/common/enemy/enemy.gd" id="9_enemy"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_eaj7m"]
 atlas = ExtResource("2_721x4")
