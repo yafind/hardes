@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://fyhpd8jnxasy"]
+
+[ext_resource type="Script" uid="uid://nmo5r3h3j705" path="res://components/MeleeComponent.gd" id="1_ri1ir"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p72ip"]
+size = Vector2(26, 29)
+
+[node name="CombatComponent" type="Area2D" unique_id=1273005950]
+collision_layer = 4
+collision_mask = 24
+script = ExtResource("1_ri1ir")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=772388017]
+shape = SubResource("RectangleShape2D_p72ip")

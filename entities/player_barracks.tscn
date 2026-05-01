@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://d2hwynf41lvwb"]
+
+[ext_resource type="Script" path="res://entities/barracks.gd" id="1_brrks"]
+[ext_resource type="Texture2D" uid="uid://bl35h3fls8b6b" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png" id="3_p26es"]
+[ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="4_ymime"]
+[ext_resource type="Texture2D" uid="uid://bod07o3jcwsol" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="5_s1338"]
+[ext_resource type="Texture2D" uid="uid://bepjyd5m6aubh" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="6_0lg5k"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sjd4k"]
+size = Vector2(270, 175)
+
+[node name="Player_barracks" type="Area2D" unique_id=882591589]
+collision_layer = 16
+script = ExtResource("1_brrks")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2059478238]
+texture = ExtResource("3_p26es")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1085978956]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_sjd4k")
+
+[node name="SolidBody" type="StaticBody2D" parent="." unique_id=489776539]
+collision_layer = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody" unique_id=839394768]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_sjd4k")
+
+[node name="SpawnTimer" type="Timer" parent="." unique_id=1339052637]
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=1454064307]
+position = Vector2(0, 110)
+
+[node name="HealthComponent" parent="." unique_id=434128458 instance=ExtResource("4_ymime")]
+
+[node name="healt" type="TextureRect" parent="." unique_id=919069831]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -156.0
+offset_top = -141.0
+offset_right = 164.0
+offset_bottom = -77.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_s1338")
+
+[node name="ProgressBar" type="TextureProgressBar" parent="healt" unique_id=1077198096]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 59.0
+offset_top = 7.0
+offset_right = 14.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.7401675, 0.7057321)
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("6_0lg5k")
+
+[node name="HealthText" type="Label" parent="healt" unique_id=2028950739]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 34.5
+offset_right = 188.0
+offset_bottom = 109.5
+text = "100/100
+
+"

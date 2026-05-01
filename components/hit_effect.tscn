@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://components/HitEffect.gd" id="1_hit"]
+[ext_resource type="Texture2D" uid="uid://bdgxldlcmqjqh" path="res://assets/Tiny Swords (Free Pack)/Particle FX/hit.png" id="2_hit"]
+
+[node name="HitEffect" type="Node2D"]
+script = ExtResource("1_hit")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("2_hit")

@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://sbekc08iqu2c"]
+
+[ext_resource type="Texture2D" uid="uid://fgfqq1mgvs4s" path="res://assets/Tiny Swords (Free Pack)/Units/Red Units/Archer/Arrow.png" id="1_3hlpd"]
+[ext_resource type="Script" uid="uid://clkjs2ck403n6" path="res://entities/player/skills/arrow.gd" id="1_5y3l2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5dve5"]
+size = Vector2(25, 25)
+
+[node name="Arrow" type="Area2D" unique_id=975338836]
+collision_layer = 4
+collision_mask = 8
+script = ExtResource("1_5y3l2")
+
+[node name="Hitbox" type="CollisionShape2D" parent="." unique_id=304070051]
+shape = SubResource("RectangleShape2D_5dve5")
+
+[node name="ArrowSprite" type="Sprite2D" parent="." unique_id=1555021989]
+texture = ExtResource("1_3hlpd")
+
+[node name="Trail" type="GPUParticles2D" parent="." unique_id=645152359]

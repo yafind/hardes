@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://cdmeyuecvqmlh"]
+
+[ext_resource type="Script" uid="uid://crp4800hlfu4t" path="res://buildings/player_castle/player_castle.gd" id="1_ns4ng"]
+[ext_resource type="Texture2D" uid="uid://dl2smab61ety5" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png" id="1_xs034"]
+[ext_resource type="PackedScene" uid="uid://cmhcdimfeu74y" path="res://entities/player/player.tscn" id="2_g6306"]
+[ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="2_ns4ng"]
+[ext_resource type="Texture2D" uid="uid://bod07o3jcwsol" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="5_wf2gv"]
+[ext_resource type="Texture2D" uid="uid://bepjyd5m6aubh" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="6_wimnj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g6306"]
+size = Vector2(270, 175)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uk65v"]
+size = Vector2(270, 60)
+
+[node name="PlayerCastle" type="Area2D" unique_id=303598323]
+collision_layer = 16
+script = ExtResource("1_ns4ng")
+player_scene = ExtResource("2_g6306")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1742124035]
+texture = ExtResource("1_xs034")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=318127632]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_g6306")
+
+[node name="SolidBody" type="StaticBody2D" parent="." unique_id=1808927418]
+collision_layer = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody" unique_id=372776486]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_g6306")
+
+[node name="HealthComponent" parent="." unique_id=434128458 instance=ExtResource("2_ns4ng")]
+
+[node name="InteractArea" type="Area2D" parent="." unique_id=973371580]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=619716662]
+position = Vector2(0, 140)
+shape = SubResource("RectangleShape2D_uk65v")
+
+[node name="RespawnPoint" type="Marker2D" parent="." unique_id=685281155]
+
+[node name="UpgradeMarker" type="Marker2D" parent="." unique_id=1698426189]
+
+[node name="healt" type="TextureRect" parent="." unique_id=1281012513]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -157.0
+offset_top = -141.0
+offset_right = 163.0
+offset_bottom = -77.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_wf2gv")
+
+[node name="ProgressBar" type="TextureProgressBar" parent="healt" unique_id=64277694]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 59.0
+offset_top = 7.0
+offset_right = 14.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.7401675, 0.7057321)
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("6_wimnj")
+
+[node name="HealthText" type="Label" parent="healt" unique_id=1503265167]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 34.5
+offset_right = 188.0
+offset_bottom = 109.5
+text = "100/100
+
+"

@@ -1,0 +1,227 @@
+[gd_scene format=3 uid="uid://cac5x6g3x66kg"]
+
+[ext_resource type="PackedScene" uid="uid://c6lp13t5xi7m5" path="res://levels/level_1.tscn" id="1_uwrxv"]
+[ext_resource type="Script" uid="uid://dd6teiaiy8es1" path="res://levels/wave_manager.gd" id="1_y7kp8"]
+[ext_resource type="PackedScene" uid="uid://cmhcdimfeu74y" path="res://entities/player/player.tscn" id="2_yqjtg"]
+[ext_resource type="Script" uid="uid://bcs6yj6vv630c" path="res://ui/UI.gd" id="4_ui"]
+[ext_resource type="Texture2D" uid="uid://lnmnk8qaoltg" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_bar.png" id="5_p57ef"]
+[ext_resource type="Texture2D" uid="uid://hjq3amd7mnqy" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/BigBar_Fill.png" id="6_fill"]
+[ext_resource type="Script" uid="uid://bdeu4r1m3mwpi" path="res://ui/skills_container.gd" id="7_gee14"]
+[ext_resource type="Texture2D" uid="uid://ckkreow6svk3f" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/TinySquareBlueButton.png" id="7_u5sy4"]
+[ext_resource type="PackedScene" uid="uid://qna5x57k3o3r" path="res://buildings/enemy_castle/enemy_castle.tscn" id="9_0tnpc"]
+[ext_resource type="Script" uid="uid://ccx7mmk1b5beo" path="res://levels/wave_ui.gd" id="9_ughyh"]
+[ext_resource type="PackedScene" uid="uid://d2hwynf41lvwb" path="res://entities/player_barracks.tscn" id="10_5ycdb"]
+[ext_resource type="PackedScene" uid="uid://cdmeyuecvqmlh" path="res://buildings/player_castle/player_castle.tscn" id="10_vtaks"]
+
+[node name="game" type="Node2D" unique_id=1806012829]
+
+[node name="WaveManager" type="Node2D" parent="." unique_id=1393923643]
+script = ExtResource("1_y7kp8")
+
+[node name="Player" parent="." unique_id=1656457324 instance=ExtResource("2_yqjtg")]
+z_index = 1
+position = Vector2(3059, 1847)
+collision_mask = 10
+
+[node name="level" parent="." unique_id=1847780507 instance=ExtResource("1_uwrxv")]
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1050989663]
+script = ExtResource("4_ui")
+
+[node name="HealthBarContainer" type="Control" parent="UI" unique_id=980119892]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 263.0
+offset_bottom = 59.0
+
+[node name="HealthBar" type="TextureRect" parent="UI/HealthBarContainer" unique_id=148666414]
+layout_mode = 0
+offset_right = 270.0
+offset_bottom = 64.0
+scale = Vector2(2, 2)
+texture = ExtResource("5_p57ef")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="UI/HealthBarContainer/HealthBar" unique_id=1010522842]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -3.0
+offset_right = -26.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("6_fill")
+
+[node name="HealthText" type="Label" parent="UI/HealthBarContainer/HealthBar" unique_id=1652134174]
+layout_mode = 0
+offset_left = 97.0
+offset_top = 18.0
+offset_right = 163.0
+offset_bottom = 93.0
+text = "100/100
+
+"
+
+[node name="WaveInfoContainer" type="Control" parent="UI" unique_id=1944789976]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 142.0
+offset_right = 400.0
+offset_bottom = 272.0
+script = ExtResource("9_ughyh")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/WaveInfoContainer" unique_id=1005571907]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/WaveInfoContainer/MarginContainer" unique_id=1825519662]
+layout_mode = 2
+
+[node name="TopHBoxContainer" type="HBoxContainer" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer" unique_id=1068599790]
+layout_mode = 2
+
+[node name="WavePanel" type="Panel" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/TopHBoxContainer" unique_id=2047655039]
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+
+[node name="WaveLabel" type="Label" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/TopHBoxContainer/WavePanel" unique_id=1608228995]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 15.0
+offset_right = 140.0
+offset_bottom = 35.0
+text = "WAVE: 1"
+
+[node name="TimerPanel" type="Panel" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/TopHBoxContainer" unique_id=923635850]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+
+[node name="TimerLabel" type="Label" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/TopHBoxContainer/TimerPanel" unique_id=645739220]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 15.0
+offset_right = 110.0
+offset_bottom = 35.0
+text = "01:00"
+
+[node name="ModePanel" type="Panel" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer" unique_id=721711587]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+
+[node name="ModeLabel" type="Label" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/ModePanel" unique_id=41059434]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 270.0
+offset_bottom = 30.0
+text = "MODE: ATTACK"
+
+[node name="InfoPanel" type="Panel" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer" unique_id=472436043]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="UI/WaveInfoContainer/MarginContainer/VBoxContainer/InfoPanel" unique_id=1283183219]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 270.0
+offset_bottom = 30.0
+text = "⚔️ Враги атакуют!"
+
+[node name="SkillsContainer" type="HBoxContainer" parent="UI" unique_id=583602541]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("7_gee14")
+
+[node name="Slot1" type="TextureRect" parent="UI/SkillsContainer" unique_id=394128184]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("7_u5sy4")
+
+[node name="Icon" type="TextureRect" parent="UI/SkillsContainer/Slot1" unique_id=1810532223]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Slot2" type="TextureRect" parent="UI/SkillsContainer" unique_id=1038137537]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("7_u5sy4")
+
+[node name="Icon" type="TextureRect" parent="UI/SkillsContainer/Slot2" unique_id=164225782]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Slot3" type="TextureRect" parent="UI/SkillsContainer" unique_id=2063960528]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("7_u5sy4")
+
+[node name="Icon" type="TextureRect" parent="UI/SkillsContainer/Slot3" unique_id=68845680]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Slot4" type="TextureRect" parent="UI/SkillsContainer" unique_id=1837232529]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("7_u5sy4")
+
+[node name="Icon" type="TextureRect" parent="UI/SkillsContainer/Slot4" unique_id=311037492]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Player_barracks" parent="." unique_id=882591589 instance=ExtResource("10_5ycdb")]
+position = Vector2(2495, 1511)
+
+[node name="PlayerCastle" parent="." unique_id=303598323 instance=ExtResource("10_vtaks")]
+position = Vector2(3349, 1877)
+collision_layer = 0
+
+[node name="EnemyCastle" parent="." unique_id=79346833 instance=ExtResource("9_0tnpc")]
+position = Vector2(2158, 96)

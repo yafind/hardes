@@ -1,0 +1,38 @@
+extends CastleBase
+class_name EnemyCastle
+
+@export var enemy_scene: PackedScene
+@export var spawn_interval: float = 4.0
+@export var max_active_enemies: int = 5
+@export var spawn_radius: float = 80.0
+
+@onready var spawn_timer: Timer = $SpawnTimer
+@onready var _bar: TextureProgressBar = $healt/ProgressBar
+@onready var _bar_text: Label = $healt/HealthText
+
+func _setup_health_bar_refs():
+	health_bar = _bar
+	health_text = _bar_text
+
+func _ready():
+	super._ready()
+	add_to_group("enemy_castle")
+	spawn_timer.wait_time = spawn_interval
+	spawn_timer.timeout.connect(_spawn_enemy)
+	spawn_timer.start()
+
+func _spawn_enemy():
+	# Не спавним если лимит достигнут
+	if get_tree().get_nodes_in_group("enemies").size() >= max_active_enemies:
+		return
+	if not enemy_scene:
+		return
+	
+	var enemy = enemy_scene.instantiate()
+	
+	# Случайная позиция вокруг замка
+	var angle = randf() * TAU
+	var offset = Vector2(cos(angle), sin(angle)) * randf_range(20.0, spawn_radius)
+	enemy.global_position = global_position + offset
+	
+	get_parent().add_child(enemy)
