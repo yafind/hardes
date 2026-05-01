@@ -341,7 +341,7 @@ shape = SubResource("CapsuleShape2D_md484")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=2127035877]
 collision_layer = 0
-collision_mask = 19
+collision_mask = 23
 
 [node name="attack" type="CollisionShape2D" parent="Area2D" unique_id=772463527]
 position = Vector2(20, 0)
@@ -349,7 +349,7 @@ shape = SubResource("RectangleShape2D_md484")
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=756145822]
 collision_layer = 0
-collision_mask = 19
+collision_mask = 23
 monitorable = false
 
 [node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea" unique_id=1959361719]

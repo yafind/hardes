@@ -246,7 +246,6 @@ func _physics_process(delta: float) -> void:
 
 	# Cache distance to current target
 	var dist_sq := global_position.distance_squared_to(target.global_position) if is_instance_valid(target) else INF
-	var target_dist_factor := clampf(global_position.distance_to(target.global_position) / detection_range, 0.0, 1.0) if is_instance_valid(target) else 1.0
 
 	match state:
 		State.IDLE:
@@ -436,12 +435,18 @@ func _move_via_nav(dest: Vector2) -> void:
 	
 	velocity = dir * current_speed
 	_face(dir.x < 0)
-	# Stuck detection
-	_stuck_timer -= get_physics_process_delta_time()
-	if _stuck_timer <= 0.0:
-		_stuck_timer = _STUCK_INTERVAL
-		if global_position.distance_squared_to(_last_pos) < _STUCK_DIST_SQ and dir != Vector2.ZERO:
-			velocity += Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * speed
+	# Stuck detection and recovery
+	if dir != Vector2.ZERO:
+		_stuck_timer -= get_physics_process_delta_time()
+		if _stuck_timer <= 0.0:
+			_stuck_timer = _STUCK_INTERVAL
+			if global_position.distance_squared_to(_last_pos) < _STUCK_DIST_SQ:
+				# Apply random jitter to escape stuck state
+				var jitter := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * speed * 0.5
+				velocity += jitter
+				# Also try to recalculate path
+				if nav_agent:
+					nav_agent.target_position = dest
 		_last_pos = global_position
 
 ## Compute separation direction from nearby friendly units
