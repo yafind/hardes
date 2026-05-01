@@ -45,6 +45,8 @@ enum TargetPriority { LOW = 0, MEDIUM = 50, HIGH = 80, CRITICAL = 200 }
 @export var separation_distance: float = 40.0
 ## Weight of separation behavior (0 = disabled)
 @export var separation_weight: float = 0.6
+## Wall slide factor (0 = no slide, 1 = full slide along walls)
+@export var wall_slide_factor: float = 0.7
 
 # ── State ─────────────────────────────────────────────────────────────────────
 enum State { IDLE, PATROL, CHASE, SEARCH, ATTACK, DEATH }
@@ -312,7 +314,7 @@ func _physics_process(delta: float) -> void:
 			if dist_sq > exit_range_sq:
 				_change_state(State.CHASE)
 
-	move_and_slide()
+	_move_and_slide_with_wall_handling()
 	queue_redraw()
 
 # ── State management ──────────────────────────────────────────────────────────
@@ -465,6 +467,24 @@ func _compute_separation() -> Vector2:
 	if count > 0:
 		sep /= float(count)
 	return sep.normalized()
+
+## Handle movement with wall sliding to prevent getting stuck on corners
+func _move_and_slide_with_wall_handling() -> void:
+	move_and_slide()
+	
+	# Process collisions for wall sliding behavior
+	for i in range(get_slide_collision_count()):
+		var collision = get_slide_collision(i)
+		var normal = collision.get_normal()
+		
+		# Only apply slide if moving with significant velocity
+		if velocity.length() > 10:
+			var into_wall = velocity.dot(normal)
+			if into_wall < 0:
+				# Remove the component going into the wall, keep tangential movement
+				velocity = velocity - normal * into_wall * wall_slide_factor
+				# Slight damping to prevent jitter
+				velocity = velocity.lerp(Vector2.ZERO, 0.1)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d2hwynf41lvwb"]
 
-[ext_resource type="Script" path="res://entities/barracks.gd" id="1_brrks"]
+[ext_resource type="Script" path="res://entities/ally/barracks.gd" id="1_brrks"]
 [ext_resource type="Texture2D" uid="uid://bl35h3fls8b6b" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png" id="3_p26es"]
 [ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="4_ymime"]
 [ext_resource type="Texture2D" uid="uid://bod07o3jcwsol" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="5_s1338"]
