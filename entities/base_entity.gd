@@ -101,6 +101,8 @@ func _ready() -> void:
 
 	if nav_agent:
 		nav_agent.path_max_distance = 40.0
+		nav_agent.avoidance_enabled = true
+		nav_agent.radius = 18.0
 	_pick_patrol_target()
 
 	# Subscribe to WaveManager
@@ -194,19 +196,19 @@ func _pick_best_target() -> void:
 
 	# ── Candidates from DetectionArea (enemy units in range) ──
 	# Priority 200 = unit within melee range (fight it immediately)
-	# Priority   1 = unit detected but not yet in melee range
+	# Priority  80 = unit detected but not yet in melee range (fight before marching to castle)
 	for candidate: Node2D in _candidates:
 		if not is_instance_valid(candidate):
 			continue
 		var d_sq := global_position.distance_squared_to(candidate.global_position)
-		var prio := 200 if d_sq <= attack_range * attack_range else 1
+		var prio := 200 if d_sq <= attack_range * attack_range else 80
 		if prio > best_prio or (prio == best_prio and d_sq < best_d_sq):
 			best = candidate
 			best_prio = prio
 			best_d_sq = d_sq
 
-	# ── Opposing castle — mid priority (march here when no enemies in melee range) ──
-	# Priority 50: beats distant detected units (1) but loses to anyone in attack range (200)
+	# ── Opposing castle — mid priority (march here when no enemies nearby) ──
+	# Priority 50: beats patrol (no target) but loses to any detected unit (80/200)
 	var castle_group := "player_castle" if faction == Faction.ENEMY else "enemy_castle"
 	for castle: Node in get_tree().get_nodes_in_group(castle_group):
 		if not is_instance_valid(castle):
@@ -261,8 +263,12 @@ func _physics_process(delta: float) -> void:
 		State.CHASE:
 			if is_instance_valid(target):
 				last_known_pos = target.global_position
-				var attack_sq := attack_range * attack_range
-				if dist_sq <= attack_sq and _attack_timer <= 0.0:
+				# Castles are Area2D — units get blocked by castle walls before reaching
+				# the center, so use a larger attack threshold for buildings.
+				var effective_attack_sq := attack_range * attack_range
+				if _is_castle(target):
+					effective_attack_sq = attack_range * 3.0 * (attack_range * 3.0)
+				if dist_sq <= effective_attack_sq and _attack_timer <= 0.0:
 					_change_state(State.ATTACK)
 				else:
 					_move_via_nav(target.global_position)
@@ -288,7 +294,10 @@ func _physics_process(delta: float) -> void:
 				last_known_pos = target.global_position
 				_face(global_position.x > target.global_position.x)
 			# Target moved out of extended attack range → chase again
-			if dist_sq > attack_range * attack_range * 4.0:
+			var exit_range_sq := attack_range * attack_range * 4.0
+			if _is_castle(target):
+				exit_range_sq = attack_range * 6.0 * (attack_range * 6.0)
+			if dist_sq > exit_range_sq:
 				_change_state(State.CHASE)
 
 	move_and_slide()
@@ -347,20 +356,16 @@ func _start_attack_swing() -> void:
 		return
 	if not (_can_attack and state == State.ATTACK):
 		return
-	var dealt := false
 	attack_area.monitoring = true
-	for body: Node in attack_area.get_overlapping_bodies():
-		if is_valid_target(body) and body.has_method("take_damage"):
-			var kdir := global_position.direction_to((body as Node2D).global_position)
-			body.call("take_damage", attack_damage, kdir * 100.0)
-			dealt = true
-	for area: Node in attack_area.get_overlapping_areas():
-		if is_valid_target(area) and area.has_method("take_damage"):
-			area.call("take_damage", attack_damage)
-			dealt = true
-	# Fallback: direct hit if area missed but target is close
-	if not dealt and is_instance_valid(target) and target.has_method("take_damage"):
-		if global_position.distance_to(target.global_position) <= attack_range * 1.5:
+	# Wait one physics frame so Godot processes overlaps and fires body/area_entered signals.
+	await get_tree().physics_frame
+	if not is_instance_valid(self) or not (_can_attack and state == State.ATTACK):
+		return
+	# Fallback: directly damage current target if it wasn't caught by signals.
+	# Uses a generous range for castles (blocked by walls, far from center).
+	if is_instance_valid(target) and target.has_method("take_damage"):
+		var max_range := attack_range * 4.0 if _is_castle(target) else attack_range * 1.5
+		if global_position.distance_to(target.global_position) <= max_range:
 			var kdir := global_position.direction_to(target.global_position)
 			target.call("take_damage", attack_damage, kdir * 100.0)
 
