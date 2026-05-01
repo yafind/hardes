@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://fyhpd8jnxasy"]
 
-[ext_resource type="Script" uid="uid://nmo5r3h3j705" path="res://components/MeleeComponent.gd" id="1_ri1ir"]
+[ext_resource type="Script" uid="uid://nmo5r3h3j705" path="res://components/CombatComponent.gd" id="1_ri1ir"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p72ip"]
 size = Vector2(26, 29)
