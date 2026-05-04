@@ -147,7 +147,7 @@ func _start_attack_swing() -> void:
 	
 	if arrow_scene:
 		var arrow = arrow_scene.instantiate()
-		get_tree().current_scene.add_child(arrow)
+		get_parent().add_child(arrow)
 		arrow.global_position = spawn_pos
 		
 		# Направляем стрелу в цель
