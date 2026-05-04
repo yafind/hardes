@@ -49,10 +49,27 @@ grow_vertical = 2
 texture = ExtResource("4_hp_bg")
 
 [node name="ProgressBar" type="TextureProgressBar" parent="healt" unique_id=3000000010]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 196.0
 offset_bottom = 44.0
-texture_under = ExtResource("4_hp_bg")
-texture_over = ExtResource("5_hp_fill")
-fill_mode = 0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.7401675, 0.7057321)
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("5_hp_fill")
+
+[node name="HealthText" type="Label" parent="healt" unique_id=3000000011]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 34.5
+offset_right = 188.0
+offset_bottom = 109.5
+text = "300/300
+
+"
