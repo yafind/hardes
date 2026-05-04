@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://heal_effect_scene"]
+
+[ext_resource type="Script" path="res://entities/ally/heal_effect.gd" id="1_heal_effect"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_effect"]
+radius = 20.0
+
+[node name="HealEffect" type="Node2D" unique_id=2000000001]
+script = ExtResource("1_heal_effect")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2000000002]
+scale = Vector2(1.5, 1.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2000000003]
+shape = SubResource("CircleShape2D_effect")

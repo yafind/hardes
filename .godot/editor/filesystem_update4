@@ -1,6 +1,0 @@
-res://assets/ground.tres
-res://entities/ally/player_archer.tscn
-res://entities/ally/player_archer.gd
-res://player_archery.gd
-res://entities/ally/player_archery.tscn
-res://entities/ally/player_barracks.tscn

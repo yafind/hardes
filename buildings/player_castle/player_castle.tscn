@@ -44,6 +44,11 @@ shape = SubResource("RectangleShape2D_uk65v")
 
 [node name="UpgradeMarker" type="Marker2D" parent="." unique_id=1698426189]
 
+[node name="SpawnTimer" type="Timer" parent="." unique_id=1000000001]
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=1000000002]
+position = Vector2(0, 110)
+
 [node name="healt" type="TextureRect" parent="." unique_id=1281012513]
 anchors_preset = -1
 anchor_right = 1.0

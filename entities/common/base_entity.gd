@@ -325,7 +325,11 @@ func _change_state(new_state: State) -> void:
 		State.IDLE:
 			animated_sprite.play("idle")
 		State.PATROL, State.CHASE, State.SEARCH:
-			animated_sprite.play("move")
+			# Check if this is an archer (has shoot animation)
+			if animated_sprite.sprite_frames.has_animation("run"):
+				animated_sprite.play("run")
+			else:
+				animated_sprite.play("move")
 		State.ATTACK:
 			var tp := target.global_position if is_instance_valid(target) else last_known_pos
 			_face(global_position.x > tp.x)
@@ -391,10 +395,9 @@ func _on_animation_finished() -> void:
 	if _wave_mode == "slack" and _finishing_fight:
 		_hold_position()
 		return
-
+	
 	var stay_range := attack_range * 4.0 if _is_castle(target) else attack_range * 1.2
-	if is_instance_valid(target) and \
-		   global_position.distance_to(target.global_position) <= stay_range:
+	if is_instance_valid(target) and global_position.distance_to(target.global_position) <= stay_range:
 		_change_state(State.CHASE)
 	else:
 		_search_timer = search_timeout
