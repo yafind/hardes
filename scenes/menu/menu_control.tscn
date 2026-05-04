@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://br22pt1jhbhjt"]
 
 [ext_resource type="Script" uid="uid://co36gd1e3ogv8" path="res://scenes/menu/menu_control.gd" id="1_5p55f"]
+[ext_resource type="Script" path="res://scripts/debug_logger.gd" id="2_debug"]
 
 [node name="Control" type="Control" unique_id=216456367]
 layout_mode = 3
@@ -45,3 +46,6 @@ theme_override_font_sizes/font_size = 22
 text = "Quit
 
 "
+
+[node name="DebugLogger" type="Node" parent="." unique_id=999888777]
+script = ExtResource("2_debug")
