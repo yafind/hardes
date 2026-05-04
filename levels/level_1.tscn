@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://dtypaq82a54cn" path="res://assets/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree2.png" id="9_vjtdm"]
 [ext_resource type="Texture2D" uid="uid://l32jps36oqv" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Banners/Banner_Slots.png" id="10_2y5yt"]
 [ext_resource type="Texture2D" uid="uid://cauok8skcbutv" path="res://assets/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree3.png" id="10_lrvbd"]
-[ext_resource type="Script" uid="uid://dbdllfyjrrc5w" path="res://components/collider.gd" id="11_2os1m"]
+[ext_resource type="Script" uid="uid://dbdllfyjrrc5w" path="res://components/collision_component.gd" id="11_2os1m"]
 [ext_resource type="Texture2D" uid="uid://gk8cakmyp2w8" path="res://assets/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree4.png" id="11_oqlok"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_go7sj"]
