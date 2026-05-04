@@ -57,6 +57,21 @@ func _ready():
 	await get_tree().process_frame
 	_connect_wave_manager()
 
+	# Skill 4 detection zone — fires arrow when an enemy enters range
+	var skill4_zone := Area2D.new()
+	skill4_zone.name = "Skill4Zone"
+	skill4_zone.collision_layer = 0
+	skill4_zone.collision_mask = 4  # enemy bodies (layer 3 = bit 2 = value 4)
+	skill4_zone.monitoring = true
+	skill4_zone.monitorable = false
+	var _cs4 := CollisionShape2D.new()
+	var _shape4 := CircleShape2D.new()
+	_shape4.radius = skill_4_range
+	_cs4.shape = _shape4
+	skill4_zone.add_child(_cs4)
+	add_child(skill4_zone)
+	skill4_zone.body_entered.connect(_on_skill4_body_entered)
+
 func _physics_process(delta: float):
 	if current_state == PlayerState.DEATH:
 		return
@@ -125,7 +140,9 @@ func _update_systems(delta):
 				_reset_cooldown(i)
 	
 	_timer_skill3 = _tick_passive(_timer_skill3, delta, skill_3_interval, _cast_skill_3)
-	_timer_skill4 = _tick_passive(_timer_skill4, delta, skill_4_interval, _cast_skill_4)
+	# Skill 4 cooldown: count up to interval; arrow fires via zone entry, not here
+	if _timer_skill4 < skill_4_interval:
+		_timer_skill4 += delta
 	
 	if can_combo:
 		combo_timer -= delta
@@ -160,11 +177,27 @@ func _cast_skill_3():
 	_spawn_projectile(SKILL_3_SCENE, {"damage": skill_3_damage, "radius": skill_3_radius})
 
 func _cast_skill_4():
-	# Use priority targeting for skill 4 (auto-aim at most threatening enemy)
-	var skill_target = _find_priority_enemy()
+	# Legacy helper — use _on_skill4_body_entered for zone-triggered arrow.
+	var skill_target := _find_priority_enemy()
 	if skill_target:
-		var dir = (skill_target.global_position - global_position).normalized()
+		var dir := (skill_target.global_position - global_position).normalized()
 		_spawn_projectile(SKILL_4_SCENE, {"direction": dir, "damage": skill_4_damage, "max_distance": skill_4_range, "target": skill_target})
+		_timer_skill4 = 0.0
+
+func _on_skill4_body_entered(body: Node) -> void:
+	## Fires an arrow at `body` when it enters the skill-4 zone and the cooldown is ready.
+	if _timer_skill4 < skill_4_interval:
+		return
+	if not is_valid_target(body):
+		return
+	var dir := ((body as Node2D).global_position - global_position).normalized()
+	_spawn_projectile(SKILL_4_SCENE, {
+		"direction": dir,
+		"damage": skill_4_damage,
+		"max_distance": skill_4_range,
+		"target": body as Node2D
+	})
+	_timer_skill4 = 0.0
 
 func _spawn_projectile(scene: PackedScene, props: Dictionary):
 	if not scene:
@@ -172,10 +205,13 @@ func _spawn_projectile(scene: PackedScene, props: Dictionary):
 	var inst = scene.instantiate()
 	for p in props:
 		inst.set(p, props[p])
-	inst.global_position = global_position
-	var parent = get_parent()
+	var spawn_pos := global_position
+	var parent := get_parent()
 	if parent:
-		parent.add_child(inst)
+		# call_deferred avoids "can't change state while flushing queries"
+		# when this is triggered from a physics callback (body_entered).
+		parent.call_deferred("add_child", inst)
+		inst.set_deferred("global_position", spawn_pos)
 
 # ✅ Атака с использованием Area2D
 func _attack_melee(dmg: int):

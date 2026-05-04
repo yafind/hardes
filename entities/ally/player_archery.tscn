@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://hsqc2vn628rh"]
+
+[ext_resource type="Script" uid="uid://b7l1xlxgouabx" path="res://player_archery.gd" id="1_g787m"]
+[ext_resource type="Texture2D" uid="uid://b3rpe102kew0i" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Archery.png" id="2_ddi5u"]
+[ext_resource type="PackedScene" uid="uid://be04bd4gnwove" path="res://components/health_component.tscn" id="3_ax0ln"]
+[ext_resource type="Texture2D" uid="uid://bod07o3jcwsol" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="4_n2ljb"]
+[ext_resource type="Texture2D" uid="uid://bepjyd5m6aubh" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="5_0t408"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hbrgn"]
+size = Vector2(270, 175)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3c06k"]
+size = Vector2(270, 175)
+
+[node name="player_archery" type="Area2D" unique_id=1460977857]
+script = ExtResource("1_g787m")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=776938406]
+texture = ExtResource("2_ddi5u")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=593540418]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_hbrgn")
+
+[node name="SolidBody" type="StaticBody2D" parent="." unique_id=876759171]
+collision_layer = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody" unique_id=1636697065]
+position = Vector2(0, 13)
+shape = SubResource("RectangleShape2D_3c06k")
+
+[node name="SpawnTimer" type="Timer" parent="." unique_id=244023445]
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=374365107]
+position = Vector2(0, 110)
+
+[node name="HealthComponent" parent="." unique_id=434128458 instance=ExtResource("3_ax0ln")]
+
+[node name="healt" type="TextureRect" parent="." unique_id=121563076]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -156.0
+offset_top = -141.0
+offset_right = 164.0
+offset_bottom = -77.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_n2ljb")
+
+[node name="ProgressBar" type="TextureProgressBar" parent="healt" unique_id=2060626428]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 59.0
+offset_top = 7.0
+offset_right = 14.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.7401675, 0.7057321)
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("5_0t408")
+
+[node name="HealthText" type="Label" parent="healt" unique_id=2126442254]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 34.5
+offset_right = 188.0
+offset_bottom = 109.5
+text = "100/100
+
+"

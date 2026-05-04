@@ -7,6 +7,7 @@ class_name EnemyCastle
 @export var spawn_radius: float = 80.0
 
 @onready var spawn_timer: Timer = $SpawnTimer
+@onready var spawn_point: Marker2D = $SpawnPoint
 @onready var _bar: TextureProgressBar = $healt/ProgressBar
 @onready var _bar_text: Label = $healt/HealthText
 
@@ -29,10 +30,11 @@ func _spawn_enemy():
 		return
 	
 	var enemy = enemy_scene.instantiate()
-	
-	# Случайная позиция вокруг замка
-	var angle = randf() * TAU
-	var offset = Vector2(cos(angle), sin(angle)) * randf_range(20.0, spawn_radius)
-	enemy.global_position = global_position + offset
-	
+	# Добавляем в дерево ДО установки позиции — навигационный агент
+	# корректно регистрируется на навмеше (аналогично barracks.gd)
 	get_parent().add_child(enemy)
+	
+	# Спавним от SpawnPoint (ниже замка) с горизонтальным разбросом,
+	# как barracks.gd — это гарантирует попадание на навмеш
+	var sp: Vector2 = spawn_point.global_position if spawn_point else global_position
+	enemy.global_position = sp + Vector2(randf_range(-spawn_radius, spawn_radius), 0.0)

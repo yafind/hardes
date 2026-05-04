@@ -70,11 +70,6 @@ func _connect_signals():
 	if player and player.has_signal("skill_cooldown_updated"):
 		player.skill_cooldown_updated.connect(_on_cooldown_updated)
 
-func _process(_delta: float):
-	# Пассивные скиллы теперь обновляются через сигнал каждый кадр,
-	# поэтому _process можно оставить пустым или использовать для других задач.
-	pass
-
 # Вспомогательная функция для инициализации всех оверлеев
 func _update_all_overlays():
 	if not player:

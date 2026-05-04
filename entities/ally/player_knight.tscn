@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bjmkndpycw45a"]
 
-[ext_resource type="Script" path="res://entities/ally/player_knight.gd" id="1_knght"]
+[ext_resource type="Script" uid="uid://cqql06qvrb2na" path="res://entities/ally/player_knight.gd" id="1_knght"]
 [ext_resource type="Texture2D" uid="uid://da5lbntlrspis" path="res://assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack1.png" id="2_je68d"]
 [ext_resource type="Texture2D" uid="uid://cwo46pt3j0l32" path="res://assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack2.png" id="3_njiyt"]
 [ext_resource type="Texture2D" uid="uid://dugo440wvblh1" path="res://assets/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Guard.png" id="4_v0lxm"]
@@ -309,8 +309,7 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_md484"]
-radius = 20.0
-height = 50.0
+radius = 15.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_md484"]
 size = Vector2(90, 120)
@@ -336,19 +335,18 @@ shape = SubResource("CapsuleShape2D_md484")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=2127035877]
 collision_layer = 0
-collision_mask = 24
+collision_mask = 20
 
 [node name="attack" type="CollisionShape2D" parent="Area2D" unique_id=772463527]
 position = Vector2(20, 0)
 shape = SubResource("RectangleShape2D_md484")
 
-[node name="DetectionArea" type="Area2D" parent="."]
+[node name="DetectionArea" type="Area2D" parent="." unique_id=1721907190]
 collision_layer = 0
-collision_mask = 24
-monitoring = true
+collision_mask = 20
 monitorable = false
 
-[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea" unique_id=14023566]
 shape = SubResource("CircleShape2D_detect")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=314159265]

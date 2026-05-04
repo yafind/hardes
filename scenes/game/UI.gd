@@ -13,4 +13,4 @@ func _ready():
 func _on_health_changed(current: int, maximum: int):
 	health_bar.max_value = maximum
 	health_bar.value = current
-	health_text.text = "%d / %d" % [maximum, current]
+	health_text.text = "%d / %d" % [current, maximum]

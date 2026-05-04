@@ -15,6 +15,9 @@ func _ready():
 	await get_tree().process_frame
 	
 	wave_manager = get_node_or_null("../../WaveManager")
+	if not wave_manager:
+		var list := get_tree().get_nodes_in_group("wave_manager")
+		wave_manager = list[0] if list.size() > 0 else null
 	
 	if wave_manager:
 		wave_manager.wave_started.connect(_on_wave_started)

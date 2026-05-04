@@ -62,6 +62,7 @@ var _search_timer:       float   = 0.0
 var _priority_timer:     float   = 0.0
 var _stuck_timer:        float   = 0.0
 var _last_pos:           Vector2 = Vector2.ZERO
+var _nav_last_dest:      Vector2 = Vector2(INF, INF)
 var _wave_mode:          String  = "attack"
 var _finishing_fight:    bool    = false
 
@@ -109,8 +110,8 @@ func _ready() -> void:
 		detection_area.body_exited.connect(_on_detection_body_exited)
 
 	if nav_agent:
-		nav_agent.path_max_distance = 40.0
-		nav_agent.avoidance_enabled = true
+		nav_agent.path_max_distance = 80.0
+		nav_agent.avoidance_enabled = false  # separation_weight handles unit spacing
 		nav_agent.radius = 18.0
 	_pick_patrol_target()
 
@@ -127,16 +128,12 @@ func _ready() -> void:
 # ── Wave manager ──────────────────────────────────────────────────────────────
 
 func _connect_wave_manager() -> void:
-	var wm := _get_wave_manager()
+	var wm := GameUtils.get_wave_manager(get_tree())
 	if wm == null:
 		return
 	_wave_mode = wm.get_mode() if wm.has_method("get_mode") else "attack"
 	if not wm.mode_changed.is_connected(_on_wave_mode_changed):
 		wm.mode_changed.connect(_on_wave_mode_changed)
-
-func _get_wave_manager() -> Node:
-	var list := get_tree().get_nodes_in_group("wave_manager")
-	return list[0] if list.size() > 0 else null
 
 func _on_wave_mode_changed(new_mode: String) -> void:
 	_wave_mode = new_mode
@@ -277,15 +274,28 @@ func _physics_process(delta: float) -> void:
 		State.CHASE:
 			if is_instance_valid(target):
 				last_known_pos = target.global_position
-				# Castles are Area2D — units get blocked by castle walls before reaching
-				# the center, so use a larger attack threshold for buildings.
+				# Castles are Area2D — units get blocked by castle walls before
+				# reaching the center. Minimum distance = wall_half_width + body_radius ≈ 158px.
+				# Multiplier 4.0 → 200px (safely > 158px for attack_range ≥ 40).
 				var effective_attack_sq := attack_range * attack_range
 				if _is_castle(target):
-					effective_attack_sq = attack_range * 3.0 * (attack_range * 3.0)
-				if dist_sq <= effective_attack_sq and _attack_timer <= 0.0:
-					_change_state(State.ATTACK)
+					effective_attack_sq = attack_range * 4.0 * (attack_range * 4.0)
+				if dist_sq <= effective_attack_sq:
+					if _attack_timer <= 0.0:
+						_change_state(State.ATTACK)
+					else:
+						# In attack-cooldown range: hold position so navmesh
+						# doesn’t route the unit away from the castle.
+						velocity = Vector2.ZERO
+						_face(global_position.x > target.global_position.x)
 				else:
-					_move_via_nav(target.global_position)
+					var nav_dest := target.global_position
+					if _is_castle(target):
+						# Castle wall is ~143px from center, body radius ~15px → stop at ~158px.
+						# Navigate to 175px from center (outside the wall) so the path is reachable.
+						var to_castle := global_position.direction_to(target.global_position)
+						nav_dest = target.global_position - to_castle * (attack_range * 3.5)
+					_move_via_nav(nav_dest)
 			else:
 				_search_timer = search_timeout
 				_change_state(State.SEARCH)
@@ -380,8 +390,11 @@ func _start_attack_swing() -> void:
 	if is_instance_valid(target) and target.has_method("take_damage"):
 		var max_range := attack_range * 4.0 if _is_castle(target) else attack_range * 1.5
 		if global_position.distance_to(target.global_position) <= max_range:
-			var kdir := global_position.direction_to(target.global_position)
-			target.call("take_damage", attack_damage, kdir * 100.0)
+			if _is_castle(target):
+				target.call("take_damage", attack_damage)
+			else:
+				var kdir := global_position.direction_to(target.global_position)
+				target.call("take_damage", attack_damage, kdir * 100.0)
 
 func _on_animation_finished() -> void:
 	if state != State.ATTACK:
@@ -395,7 +408,9 @@ func _on_animation_finished() -> void:
 		_hold_position()
 		return
 
-	if is_instance_valid(target) and 	   global_position.distance_to(target.global_position) <= attack_range * 1.2:
+	var stay_range := attack_range * 4.0 if _is_castle(target) else attack_range * 1.2
+	if is_instance_valid(target) and \
+		   global_position.distance_to(target.global_position) <= stay_range:
 		_change_state(State.CHASE)
 	else:
 		_search_timer = search_timeout
@@ -416,7 +431,10 @@ func _on_attack_area_entered(area: Node) -> void:
 func _move_via_nav(dest: Vector2) -> void:
 	var dir := Vector2.ZERO
 	if nav_agent:
-		nav_agent.target_position = dest
+		# Only recalculate path when destination moved more than 8 px — avoids per-frame thrash
+		if dest.distance_squared_to(_nav_last_dest) > 64.0:
+			_nav_last_dest = dest
+			nav_agent.target_position = dest
 		if not nav_agent.is_navigation_finished():
 			var next := nav_agent.get_next_path_position()
 			if global_position.distance_squared_to(next) > 1.0:
@@ -471,20 +489,14 @@ func _compute_separation() -> Vector2:
 ## Handle movement with wall sliding to prevent getting stuck on corners
 func _move_and_slide_with_wall_handling() -> void:
 	move_and_slide()
-	
-	# Process collisions for wall sliding behavior
+	# Push velocity away from collision normals so units slide along walls
+	# instead of stopping dead and getting stuck
 	for i in range(get_slide_collision_count()):
-		var collision = get_slide_collision(i)
-		var normal = collision.get_normal()
-		
-		# Only apply slide if moving with significant velocity
-		if velocity.length() > 10:
-			var into_wall = velocity.dot(normal)
-			if into_wall < 0:
-				# Remove the component going into the wall, keep tangential movement
-				velocity = velocity - normal * into_wall * wall_slide_factor
-				# Slight damping to prevent jitter
-				velocity = velocity.lerp(Vector2.ZERO, 0.1)
+		var col := get_slide_collision(i)
+		var normal := col.get_normal()
+		var into_wall := velocity.dot(-normal)
+		if into_wall > 0.0:
+			velocity += normal * into_wall
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

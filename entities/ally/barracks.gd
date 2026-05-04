@@ -11,7 +11,7 @@ extends Area2D
 
 @onready var spawn_timer: Timer         = $SpawnTimer
 @onready var spawn_point: Marker2D      = $SpawnPoint
-@onready var health_component: Node     = $HealthComponent
+@onready var health_component: HealthComponent = $HealthComponent
 @onready var _bar: TextureProgressBar   = $healt/ProgressBar
 
 var _wave_mode: String  = "attack"
@@ -30,16 +30,12 @@ func _ready() -> void:
 	spawn_timer.start()
 
 	await get_tree().process_frame
-	var wm := _get_wave_manager()
+	var wm := GameUtils.get_wave_manager(get_tree())
 	if wm:
 		_wave_mode = wm.get_mode() if wm.has_method("get_mode") else "attack"
 		if not wm.mode_changed.is_connected(_on_wave_mode_changed):
 			wm.mode_changed.connect(_on_wave_mode_changed)
 	_apply_mode()
-
-func _get_wave_manager() -> Node:
-	var list := get_tree().get_nodes_in_group("wave_manager")
-	return list[0] if list.size() > 0 else null
 
 func _on_wave_mode_changed(new_mode: String) -> void:
 	_wave_mode = new_mode

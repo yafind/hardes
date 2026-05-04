@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bepjyd5m6aubh" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="6_wimnj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g6306"]
-size = Vector2(270, 175)
+size = Vector2(285, 175)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uk65v"]
 size = Vector2(270, 60)
@@ -22,7 +22,7 @@ player_scene = ExtResource("2_g6306")
 texture = ExtResource("1_xs034")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=318127632]
-position = Vector2(0, 13)
+position = Vector2(-7.5, 13)
 shape = SubResource("RectangleShape2D_g6306")
 
 [node name="SolidBody" type="StaticBody2D" parent="." unique_id=1808927418]
