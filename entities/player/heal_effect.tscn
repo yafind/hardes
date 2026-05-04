@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://heal_effect_scene"]
 
-[ext_resource type="Script" path="res://entities/ally/heal_effect.gd" id="1_heal_effect"]
+[ext_resource type="Script" path="res://entities/player/heal_effect.gd" id="1_heal_effect"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_effect"]
 radius = 20.0
