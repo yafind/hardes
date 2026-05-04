@@ -242,9 +242,24 @@ autoplay = "idle"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1698690615]
 shape = SubResource("CapsuleShape2D_77fmg")
 
+[node name="DetectionArea" type="Area2D" parent="." unique_id=5938471620]
+monitoring = true
+monitorable = true
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea" unique_id=4827561930]
+shape = SubResource("CapsuleShape2D_77fmg")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=6938471520]
+
+[node name="AttackShape" type="CollisionShape2D" parent="Area2D" unique_id=5827491630]
+shape = SubResource("CapsuleShape2D_77fmg")
+
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=2102248270]
 path_desired_distance = 8.0
 target_desired_distance = 20.0
 path_max_distance = 10.0
 
 [node name="HealthComponent" parent="." unique_id=434128458 instance=ExtResource("6_a1hvn")]
+
+[node name="ShootPoint" type="Marker2D" parent="." unique_id=5847562902]
+position = Vector2(30, -10)

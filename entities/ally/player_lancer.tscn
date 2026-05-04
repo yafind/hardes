@@ -312,214 +312,6 @@ region = Rect2(3520, 0, 320, 320)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yw6mu")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_lpxus")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_i27ad")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_v5s5h")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hwmo3")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_f1v4l")
-}],
-"loop": false,
-"name": &"Lancer_DownRight_Defence",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dn84a")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_cqn8s")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_smpya")
-}],
-"loop": false,
-"name": &"Lancer_Down_Attack",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_d4sku")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_bjnel")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o0wq6")
-}],
-"loop": false,
-"name": &"Lancer_Down_Attack_1",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o412h")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dqecj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ov3ys")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_l06mw")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7bomx")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_w7kuu")
-}],
-"loop": false,
-"name": &"Lancer_Down_Defence",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_i6412")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_svn8l")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_5merx")
-}],
-"loop": false,
-"name": &"Lancer_Right_Attack",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ksrbn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rjmx8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3ot0u")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fo215")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_t8iwt")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_itwob")
-}],
-"loop": false,
-"name": &"Lancer_Right_Defence",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_n1870")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_kj2v0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_t2fxx")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_c2nru")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o1n4g")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_5qkdr")
-}],
-"loop": true,
-"name": &"Lancer_Run",
-"speed": 8.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mtrr2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jmb1j")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_k53ne")
-}],
-"loop": false,
-"name": &"Lancer_UpRight_Attack",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_s1f3n")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1e4bf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6syk8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6p5ll")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pjptc")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jd5vf")
-}],
-"loop": true,
-"name": &"Lancer_UpRight_Defence",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jq8py")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_chqn8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_t3ntr")
-}],
-"loop": false,
-"name": &"Lancer_Up_Attack",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_tdaxv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0p7nm")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_5otui")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ybrwv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dqbkr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mpckp")
-}],
-"loop": false,
-"name": &"Lancer_Up_Defence",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_7hgmc")
 }, {
 "duration": 1.0,
@@ -592,18 +384,45 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle",
-"speed": 10.0
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n1870")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kj2v0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2fxx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c2nru")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o1n4g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5qkdr")
+}],
+"loop": true,
+"name": &"move",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d4sku")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bjnel")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o0wq6")
+}],
+"loop": false,
+"name": &"attack1",
+"speed": 5.0
 }]
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g3xcc"]
-radius = 17.0
-height = 54.0
-
-[node name="player_lancer" type="CharacterBody2D" unique_id=2093627111]
-script = ExtResource("1_musxh")
-metadata/_custom_type_script = "uid://dnfnuljpmvy3m"
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=923775136]
 sprite_frames = SubResource("SpriteFrames_v5qhr")
 animation = &"Lancer_Up_Defence"
 autoplay = "idle"
@@ -611,6 +430,18 @@ frame = 5
 frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=515199838]
+shape = SubResource("CapsuleShape2D_g3xcc")
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=4756382019]
+monitoring = true
+monitorable = true
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea" unique_id=3847561029]
+shape = SubResource("CapsuleShape2D_g3xcc")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=5847392016]
+
+[node name="AttackShape" type="CollisionShape2D" parent="Area2D" unique_id=4738291056]
 shape = SubResource("CapsuleShape2D_g3xcc")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1891564464]

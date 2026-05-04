@@ -613,6 +613,18 @@ frame_progress = 1.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=515199838]
 shape = SubResource("CapsuleShape2D_g3xcc")
 
+[node name="DetectionArea" type="Area2D" parent="." unique_id=6847592013]
+monitoring = true
+monitorable = true
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea" unique_id=5738491026]
+shape = SubResource("CapsuleShape2D_g3xcc")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=7948572013]
+
+[node name="AttackShape" type="CollisionShape2D" parent="Area2D" unique_id=6837491520]
+shape = SubResource("CapsuleShape2D_g3xcc")
+
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1891564464]
 path_desired_distance = 8.0
 target_desired_distance = 20.0
