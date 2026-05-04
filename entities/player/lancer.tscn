@@ -423,6 +423,13 @@ animations = [{
 "name": &"attack1",
 "speed": 5.0
 }]
+
+[node name="player_lancer" type="CharacterBody2D" unique_id=160389058]
+collision_layer = 2
+collision_mask = 37
+script = ExtResource("1_musxh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=115812037]
 sprite_frames = SubResource("SpriteFrames_v5qhr")
 animation = &"Lancer_Up_Defence"
 autoplay = "idle"
@@ -454,3 +461,4 @@ target_desired_distance = 20.0
 path_max_distance = 10.0
 
 [node name="HealthComponent" parent="." unique_id=434128458 instance=ExtResource("15_1fjij")]
+
