@@ -1,85 +1,88 @@
 ## BaseEntity.gd
-## Abstract base for all faction-aware AI units (enemies & allies).
+## Базовый класс для всех юнитов ИИ (враги и союзники) с поддержкой фракций.
 ##
-## Detection architecture — signal-driven, NOT per-frame polling:
-##   • DetectionArea  (Area2D) — large circle, triggers body_entered/body_exited.
-##     The node MUST exist in the scene as a child named "DetectionArea".
-##   • Area2D         (Area2D) — small melee zone, used for actual hit detection.
+## Архитектура обнаружения — на сигналах, НЕ опрос каждый кадр:
+##   • DetectionArea  (Area2D) — большая зона, срабатывают сигналы body_entered/body_exited.
+##     Узел ДОЛЖЕН существовать в сцене как дочерний с именем "DetectionArea".
+##   • Area2D         (Area2D) — малая зона ближнего боя для нанесения урона.
 ##
-## Collision layer convention (configure in Inspector or via code):
-##   Layer 1 (bit 0) = 1   → Player (hero, user-controlled)
-##   Layer 2 (bit 1) = 2   → Player-faction AI units (knights, allies)
-##   Layer 3 (bit 2) = 4   → Enemy-faction AI units
-##   Layer 5 (bit 4) = 16  → Buildings / Castles (Area2D, no physics body)
-##   Layer 6 (bit 5) = 32  → Static walls / castle solid bodies
+## Соглашения о слоях коллизий (настраивается в Inspector или через код):
+##   Слой 1 (бит 0) = 1   → Игрок (герой, управляется пользователем)
+##   Слой 2 (бит 1) = 2   → Юниты фракции игрока (рыцари, союзники)
+##   Слой 3 (бит 2) = 4   → Юниты фракции врага
+##   Слой 5 (бит 4) = 16  → Здания / Замки (Area2D, без физического тела)
+##   Слой 6 (бит 5) = 32  → Статические стены / твёрдые тела замка
 ##
-## DetectionArea collision_mask should see the OPPOSING faction:
-##   Enemy unit DetectionArea mask  = 3   (layers 1+2  = player hero + player knights)
-##   Ally  unit DetectionArea mask  = 4   (layer  3    = enemy units)
-##   (castles are always known and don't need detection — found by group query)
+## collision_mask зоны DetectionArea должен видеть ПРОТИВОПОЛОЖНУЮ фракцию:
+##   Зона обнаружения врага mask = 3   (слои 1+2 = герой игрока + рыцари игрока)
+##   Зона обнаружения союзника mask = 4   (слой 3 = юниты врага)
+##   (замки всегда известны и не требуют обнаружения — находятся через запрос группы)
 ##
-## Wave modes:
-##   "attack" → normal AI behavior
-##   "slack"  → unit pauses. Resumes ONLY if an enemy enters DetectionArea
-##              OR WaveManager switches back to "attack".
+## Режимы волн:
+##   "attack" → обычное поведение ИИ
+##   "slack"  → юнит приостанавливается. Возобновляет ТОЛЬКО если враг вошёл в DetectionArea
+##              ИЛИ WaveManager переключился обратно на "attack".
 extends CharacterBody2D
 class_name BaseEntity
 
 enum Faction { PLAYER, ENEMY }
 enum TargetPriority { LOW = 0, MEDIUM = 50, HIGH = 80, CRITICAL = 200 }
 
-# ── Exports ───────────────────────────────────────────────────────────────────
-@export var faction: Faction = Faction.PLAYER
-@export var detection_range: float = 260.0  ## radius of DetectionArea (set shape in scene)
-@export var attack_range:    float = 55.0
-@export var speed:           float = 80.0
-@export var attack_damage:   int   = 12
-@export var attack_cooldown: float = 1.0
-@export var patrol_radius:   float = 70.0
-@export var search_timeout:  float = 3.0
-## How often target priority is re-evaluated (seconds). Min 0.3.
+# ── Экспортируемые переменные (настраиваются в Inspector) ───────────────────────
+
+@export var faction: Faction = Faction.PLAYER  # Фракция юнита (игрок или враг)
+@export var detection_range: float = 260.0  # Радиус зоны обнаружения (форма задаётся в сцене)
+@export var attack_range:    float = 55.0   # Дальность атаки
+@export var speed:           float = 80.0   # Скорость передвижения
+@export var attack_damage:   int   = 12     # Урон от атаки
+@export var attack_cooldown: float = 1.0    # Перезарядка между атаками
+@export var patrol_radius:   float = 70.0   # Радиус патрулирования вокруг точки появления
+@export var search_timeout:  float = 3.0    # Время поиска потерянной цели
+# Как часто пересчитывается приоритет цели (в секундах). Минимум 0.3.
 @export var priority_interval: float = 0.3
-## Multiplier for speed when moving to far targets (prevents clumping)
+# Множитель скорости при движении к далёким целям (предотвращает скопление)
 @export var approach_speed_factor: float = 1.0
-## Minimum distance to keep from other friendly units (avoid stacking)
+# Минимальное расстояние до других дружественных юнитов (избегание наложения)
 @export var separation_distance: float = 40.0
-## Weight of separation behavior (0 = disabled)
+# Вес поведения разделения (0 = отключено)
 @export var separation_weight: float = 0.6
-## Wall slide factor (0 = no slide, 1 = full slide along walls)
+# Коэффициент скольжения вдоль стен (0 = нет скольжения, 1 = полное скольжение)
 @export var wall_slide_factor: float = 0.7
 
-# ── State ─────────────────────────────────────────────────────────────────────
-enum State { IDLE, PATROL, CHASE, SEARCH, ATTACK, DEATH }
+# ── Состояния ─────────────────────────────────────────────────────────────────────
+enum State { IDLE, PATROL, CHASE, SEARCH, ATTACK, DEATH }  # Состояния ИИ: бездействие, патруль, преследование, поиск, атака, смерть
 var state: State = State.IDLE
 
-var target:              Node2D  = null
-var spawn_position:      Vector2 = Vector2.ZERO
-var patrol_target:       Vector2 = Vector2.ZERO
-var last_known_pos:      Vector2 = Vector2.ZERO
-var _can_attack:         bool    = false
-var _attack_timer:       float   = 0.0
-var _search_timer:       float   = 0.0
-var _priority_timer:     float   = 0.0
-var _stuck_timer:        float   = 0.0
-var _last_pos:           Vector2 = Vector2.ZERO
-var _nav_last_dest:      Vector2 = Vector2(INF, INF)
-var _wave_mode:          String  = "attack"
-var _finishing_fight:    bool    = false
+# Переменные состояния
+var target:              Node2D  = null        # Текущая цель
+var spawn_position:      Vector2 = Vector2.ZERO  # Точка появления
+var patrol_target:       Vector2 = Vector2.ZERO  # Цель патрулирования
+var last_known_pos:      Vector2 = Vector2.ZERO  # Последнее известное положение цели
+var _can_attack:         bool    = false       # Можно ли атаковать
+var _attack_timer:       float   = 0.0         # Таймер перезарядки атаки
+var _search_timer:       float   = 0.0         # Таймер поиска цели
+var _priority_timer:     float   = 0.0         # Таймер пересчёта приоритета
+var _stuck_timer:        float   = 0.0         # Таймер застревания
+var _last_pos:           Vector2 = Vector2.ZERO  # Последняя позиция
+var _nav_last_dest:      Vector2 = Vector2(INF, INF)  # Последняя цель навигации
+var _wave_mode:          String  = "attack"    # Режим волны ("attack" или "slack")
+var _finishing_fight:    bool    = false       # Завершает ли текущий бой
 
-# Candidates that entered the DetectionArea — used for priority picking.
-# Cleared on body_exited. Castle is always included via group query (no range limit).
+# Кандидаты в цели, вошедшие в зону обнаружения — используются для выбора приоритета.
+# Очищаются при выходе из зоны. Замок всегда добавляется через запрос группы (без ограничения по дальности).
 var _candidates: Array[Node2D] = []
 
-const _STUCK_INTERVAL: float = 0.5
-const _STUCK_DIST_SQ:  float = 4.0
+const _STUCK_INTERVAL: float = 0.5  # Интервал проверки застревания (сек)
+const _STUCK_DIST_SQ:  float = 4.0   # Минимальный квадрат расстояния для определения застревания
 
-const HIT_EFFECT := preload("res://components/hit_effect.tscn")
+const HIT_EFFECT := preload("res://components/hit_effect.tscn")  # Эффект попадания
 
+# Ссылки на узлы сцены (заполняются в _ready)
 @onready var animated_sprite: AnimatedSprite2D  = $AnimatedSprite2D
 @onready var health_component: Node              = $HealthComponent
 @onready var attack_area:      Area2D            = $Area2D
 @onready var nav_agent:        NavigationAgent2D = $NavigationAgent2D if has_node("NavigationAgent2D") else null
-var detection_area: Area2D = null
+var detection_area: Area2D = null  # Зона обнаружения врагов (заполняется в _ready)
 
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 
@@ -87,45 +90,46 @@ func _ready() -> void:
 	spawn_position = global_position
 	_last_pos      = global_position
 
-	# Detection area (optional — human-controlled units may not have one)
+	# Зона обнаружения врагов (опционально — у управляемых игроком юнитов может не быть)
 	detection_area = get_node_or_null("DetectionArea")
 
-	# Health
+	# Компонент здоровья
 	if health_component and health_component.has_signal("died"):
 		health_component.died.connect(_on_death)
 
-	# Animation
+	# Анимация
 	animated_sprite.animation_finished.connect(_on_animation_finished)
 
-	# Attack area (melee hit zone) — disabled until swing
-	attack_area.monitoring = false
-	attack_area.body_entered.connect(_on_attack_body_entered)
-	attack_area.area_entered.connect(_on_attack_area_entered)
+	# Зона атаки (ближний бой) — отключена до начала удара
+	if attack_area:
+		attack_area.monitoring = false
+		attack_area.body_entered.connect(_on_attack_body_entered)
+		attack_area.area_entered.connect(_on_attack_area_entered)
 
-	# Detection area — always monitoring; signals populate _candidates
+	# Зона обнаружения — всегда активна; сигналы заполняют список _candidates
 	if detection_area:
 		detection_area.monitoring  = true
-		detection_area.monitorable = false  # other units don't need to detect this sensor
+		detection_area.monitorable = false  # другие юниты не должны обнаруживать этот сенсор
 		detection_area.body_entered.connect(_on_detection_body_entered)
 		detection_area.body_exited.connect(_on_detection_body_exited)
 
 	if nav_agent:
 		nav_agent.path_max_distance = 80.0
-		nav_agent.avoidance_enabled = false  # separation_weight handles unit spacing
+		nav_agent.avoidance_enabled = false  # расстояние между юнитами обрабатывается через separation_weight
 		nav_agent.radius = 18.0
 	_pick_patrol_target()
 
-	# Subscribe to WaveManager
+	# Подписка на WaveManager
 	await get_tree().process_frame
 	_connect_wave_manager()
 
-	# Start in correct state for current wave mode
+	# Запуск правильного состояния для текущего режима волны
 	if _wave_mode == "attack":
 		_begin_active()
 	else:
 		_change_state(State.IDLE)
 
-# ── Wave manager ──────────────────────────────────────────────────────────────
+# ── Менеджер волн ──────────────────────────────────────────────────────────────
 
 func _connect_wave_manager() -> void:
 	var wm := GameUtils.get_wave_manager(get_tree())
@@ -138,39 +142,39 @@ func _connect_wave_manager() -> void:
 func _on_wave_mode_changed(new_mode: String) -> void:
 	_wave_mode = new_mode
 	if new_mode == "slack":
-		# Finish current engagement, then hold
+		# Закончить текущий бой, затем остановиться
 		if state == State.ATTACK or state == State.CHASE:
 			_finishing_fight = true
 		else:
 			_hold_position()
 	else:
-		# Resume attack
+		# Возобновить атаку
 		_finishing_fight = false
 		_begin_active()
 
-# ── Detection signals (the core of the signal-driven approach) ────────────────
+# ── Сигналы обнаружения (основа подхода на сигналах) ────────────────
 
 func _on_detection_body_entered(body: Node2D) -> void:
 	if not is_valid_target(body):
 		return
 	if not _candidates.has(body):
 		_candidates.append(body)
-	# In slack mode: only engage if an enemy walked up to us
+	# В режиме паузы: вступаем в бой только если враг подошёл к нам
 	if _wave_mode == "slack" and not _finishing_fight:
 		_begin_active()
-	# Immediately re-evaluate priority
+	# Немедленно пересчитать приоритет цели
 	_priority_timer = 0.0
 
 func _on_detection_body_exited(body: Node2D) -> void:
 	_candidates.erase(body)
-	# If our current target left detection range, try to re-pick
+	# Если наша текущая цель вышла из зоны обнаружения, попробовать выбрать новую
 	if body == target:
 		target = null
 		_priority_timer = 0.0
 
-# ── Faction helpers ───────────────────────────────────────────────────────────
+# ── Помощники для работы с фракциями ──────────────────────────────────────────
 
-## True when `other` is a valid hostile target for this unit.
+## Возвращает true, если `other` — допустимая вражеская цель для этого юнита.
 func is_valid_target(other: Node) -> bool:
 	if not is_instance_valid(other):
 		return false
@@ -182,27 +186,27 @@ func is_valid_target(other: Node) -> bool:
 		return true
 	return false
 
-## True when `node` is the opposing primary castle objective.
+## Возвращает true, если `node` — вражеский замок (основная цель).
 func _is_castle(node: Node) -> bool:
 	if not is_instance_valid(node):
 		return false
-	return (faction == Faction.ENEMY and node.is_in_group("player_castle")) 	    or (faction == Faction.PLAYER and node.is_in_group("enemy_castle"))
+	return (faction == Faction.ENEMY and node.is_in_group("player_castle")) \t    or (faction == Faction.PLAYER and node.is_in_group("enemy_castle"))
 
-# ── Target picking ────────────────────────────────────────────────────────────
+# ── Выбор цели ────────────────────────────────────────────────────────────
 
-## Re-evaluate target from _candidates + opposing castle.
-## Called every priority_interval seconds, and on detection events.
+## Пересчитать цель из списка _candidates + вражеский замок.
+## Вызывается каждые priority_interval секунд и при событиях обнаружения.
 func _pick_best_target() -> void:
 	var best: Node2D    = null
 	var best_prio: int  = TargetPriority.LOW
 	var best_d_sq: float = INF
 
-	# Purge stale references (freed bodies that missed body_exited)
+	# Очистить устаревшие ссылки (удалённые объекты, которые пропустили body_exited)
 	_candidates = _candidates.filter(func(c): return is_instance_valid(c))
 
-	# ── Candidates from DetectionArea (enemy units in range) ──
-	# Priority CRITICAL = unit within melee range (fight it immediately)
-	# Priority HIGH = unit detected but not yet in melee range (fight before marching to castle)
+	# ── Кандидаты из зоны обнаружения (вражеские юниты в радиусе) ──
+	# Приоритет CRITICAL = юнит в радиусе ближнего боя (атаковать немедленно)
+	# Приоритет HIGH = юнит обнаружен, но ещё не в радиусе атаки (атаковать перед походом к замку)
 	for candidate: Node2D in _candidates:
 		if not is_instance_valid(candidate):
 			continue
@@ -213,8 +217,8 @@ func _pick_best_target() -> void:
 			best_prio = prio
 			best_d_sq = d_sq
 
-	# ── Opposing castle — mid priority (march here when no enemies nearby) ──
-	# Priority MEDIUM: beats patrol (no target) but loses to any detected unit (HIGH/CRITICAL)
+	# ── Вражеский замок — средний приоритет (идти сюда, если рядом нет врагов) ──
+	# Приоритет MEDIUM: выше патрулирования (нет цели), но ниже любого обнаруженного юнита (HIGH/CRITICAL)
 	var castle_group := "player_castle" if faction == Faction.ENEMY else "enemy_castle"
 	for castle: Node in get_tree().get_nodes_in_group(castle_group):
 		if not is_instance_valid(castle):
@@ -227,7 +231,7 @@ func _pick_best_target() -> void:
 
 	target = best
 
-# ── Physics process ───────────────────────────────────────────────────────────
+# ── Физический процесс (обновление каждый кадр физики) ──────────────────────────
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEATH:
@@ -237,13 +241,13 @@ func _physics_process(delta: float) -> void:
 	if _attack_timer > 0.0:  _attack_timer -= delta
 	if _search_timer > 0.0:  _search_timer -= delta
 
-	# Periodic priority re-evaluation
+	# Периодическая переоценка приоритета цели
 	_priority_timer -= delta
 	if _priority_timer <= 0.0:
 		_priority_timer = priority_interval
 		_pick_best_target()
 
-	# Cache distance to current target
+	# Кэшировать расстояние до текущей цели
 	var dist_sq := global_position.distance_squared_to(target.global_position) if is_instance_valid(target) else INF
 
 	match state:
@@ -327,7 +331,7 @@ func _physics_process(delta: float) -> void:
 	_move_and_slide_with_wall_handling()
 	queue_redraw()
 
-# ── State management ──────────────────────────────────────────────────────────
+# ── Управление состояниями ──────────────────────────────────────────────────────────
 
 func _change_state(new_state: State) -> void:
 	if new_state == state:
@@ -352,7 +356,7 @@ func _change_state(new_state: State) -> void:
 			animated_sprite.play("death")
 
 func _begin_active() -> void:
-	## Transition from idle/hold into active combat logic.
+	## Переход из бездействия/удержания в активный бой.
 	_finishing_fight = false
 	_pick_best_target()
 	if is_instance_valid(target):
@@ -362,7 +366,7 @@ func _begin_active() -> void:
 		_change_state(State.PATROL)
 
 func _hold_position() -> void:
-	## Enter passive hold (slack mode, no enemy nearby).
+	## Войти в пассивное удержание (режим паузы, нет врагов рядом).
 	target = null
 	_finishing_fight = false
 	_change_state(State.IDLE)
@@ -371,7 +375,7 @@ func _pick_patrol_target() -> void:
 	var angle := randf_range(0.0, TAU)
 	patrol_target = spawn_position + Vector2(cos(angle), sin(angle)) * randf_range(20.0, patrol_radius)
 
-# ── Combat ────────────────────────────────────────────────────────────────────
+# ── Бой ────────────────────────────────────────────────────────────────────
 
 func _start_attack_swing() -> void:
 	_can_attack = true
@@ -426,7 +430,7 @@ func _on_attack_area_entered(area: Node) -> void:
 	if _can_attack and state == State.ATTACK and is_valid_target(area) and area.has_method("take_damage"):
 		area.call("take_damage", attack_damage)
 
-# ── Navigation ────────────────────────────────────────────────────────────────
+# ── Навигация ────────────────────────────────────────────────────────────────
 
 func _move_via_nav(dest: Vector2) -> void:
 	var dir := Vector2.ZERO
@@ -469,7 +473,7 @@ func _move_via_nav(dest: Vector2) -> void:
 					nav_agent.target_position = dest
 		_last_pos = global_position
 
-## Compute separation direction from nearby friendly units
+## Вычислить направление разделения от ближайших дружественных юнитов
 func _compute_separation() -> Vector2:
 	var sep := Vector2.ZERO
 	var count := 0
@@ -486,11 +490,11 @@ func _compute_separation() -> Vector2:
 		sep /= float(count)
 	return sep.normalized()
 
-## Handle movement with wall sliding to prevent getting stuck on corners
+## Обработка движения со скольжением вдоль стен, чтобы не застревать на углах
 func _move_and_slide_with_wall_handling() -> void:
 	move_and_slide()
-	# Push velocity away from collision normals so units slide along walls
-	# instead of stopping dead and getting stuck
+	# Отталкиваем скорость от нормалей столкновений, чтобы юниты скользили вдоль стен
+	# вместо того чтобы останавливаться и застревать
 	for i in range(get_slide_collision_count()):
 		var col := get_slide_collision(i)
 		var normal := col.get_normal()
@@ -498,7 +502,7 @@ func _move_and_slide_with_wall_handling() -> void:
 		if into_wall > 0.0:
 			velocity += normal * into_wall
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ── Помощники ───────────────────────────────────────────────────────────────────
 
 func _face(left: bool) -> void:
 	if animated_sprite:
@@ -531,7 +535,7 @@ func _on_death() -> void:
 		await tw.finished
 		queue_free()
 
-# ── Debug draw ────────────────────────────────────────────────────────────────
+# ── Отладочная отрисовка ────────────────────────────────────────────────────────────────
 
 func _draw() -> void:
 	if not OS.is_debug_build():
