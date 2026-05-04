@@ -1,7 +1,0 @@
-AnimatedSprite2D
-Area2D
-BaseEntity
-CollisionShape2D
-Sprite2D
-CastleBase
-HealthComponent

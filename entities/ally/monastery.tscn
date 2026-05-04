@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://monastery_building"]
+
+[ext_resource type="Script" path="res://entities/ally/monastery.gd" id="1_monastery"]
+[ext_resource type="Texture2D" uid="uid://monastery_tex" path="res://assets/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Monastery.png" id="2_monastery_tex"]
+[ext_resource type="PackedScene" uid="uid://health_comp" path="res://components/health_component.tscn" id="3_health"]
+[ext_resource type="Texture2D" uid="uid://hp_bar_bg" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/hp_small.png" id="4_hp_bg"]
+[ext_resource type="Texture2D" uid="uid://hp_bar_fill" path="res://assets/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/SmallBar_Fill.png" id="5_hp_fill"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_main"]
+size = Vector2(200, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_solid"]
+size = Vector2(200, 150)
+
+[node name="monastery" type="Area2D" unique_id=3000000001]
+script = ExtResource("1_monastery")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=3000000002]
+texture = ExtResource("2_monastery_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=3000000003]
+position = Vector2(0, 10)
+shape = SubResource("RectangleShape2D_main")
+
+[node name="SolidBody" type="StaticBody2D" parent="." unique_id=3000000004]
+collision_layer = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody" unique_id=3000000005]
+position = Vector2(0, 10)
+shape = SubResource("RectangleShape2D_solid")
+
+[node name="SpawnTimer" type="Timer" parent="." unique_id=3000000006]
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=3000000007]
+position = Vector2(0, 100)
+
+[node name="HealthComponent" parent="." unique_id=3000000008 instance=ExtResource("3_health")]
+
+[node name="healt" type="TextureRect" parent="." unique_id=3000000009]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_hp_bg")
+
+[node name="ProgressBar" type="TextureProgressBar" parent="healt" unique_id=3000000010]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 196.0
+offset_bottom = 44.0
+texture_under = ExtResource("4_hp_bg")
+texture_over = ExtResource("5_hp_fill")
+fill_mode = 0

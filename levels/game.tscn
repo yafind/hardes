@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://qna5x57k3o3r" path="res://buildings/enemy_castle/enemy_castle.tscn" id="9_0tnpc"]
 [ext_resource type="Script" uid="uid://ccx7mmk1b5beo" path="res://managers/wave_ui.gd" id="9_ughyh"]
 [ext_resource type="PackedScene" uid="uid://d2hwynf41lvwb" path="res://entities/ally/player_barracks.tscn" id="10_5ycdb"]
+[ext_resource type="PackedScene" uid="uid://hsqc2vn628rh" path="res://entities/ally/player_archery.tscn" id="10_archery"]
 [ext_resource type="PackedScene" uid="uid://cdmeyuecvqmlh" path="res://buildings/player_castle/player_castle.tscn" id="10_vtaks"]
 
 [node name="game" type="Node2D" unique_id=1806012829]
@@ -217,7 +218,10 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Player_barracks" parent="." unique_id=882591589 instance=ExtResource("10_5ycdb")]
-position = Vector2(2495, 1511)
+position = Vector2(3250, 1850)
+
+[node name="Player_archery" parent="." unique_id=882591590 instance=ExtResource("10_archery")]
+position = Vector2(3150, 1850)
 
 [node name="PlayerCastle" parent="." unique_id=303598323 instance=ExtResource("10_vtaks")]
 position = Vector2(3349, 1877)

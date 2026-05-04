@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://monk_player_scene"]
+
+[ext_resource type="Script" path="res://entities/ally/player_monk.gd" id="1_monk"]
+[ext_resource type="PackedScene" uid="uid://health_comp" path="res://components/health_component.tscn" id="2_health"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_monk"]
+radius = 15.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_detection"]
+size = Vector2(160, 160)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(60, 60)
+
+[node name="player_monk" type="CharacterBody2D" unique_id=1000000001]
+collision_layer = 2
+collision_mask = 37
+script = ExtResource("1_monk")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1000000002]
+position = Vector2(0, -10)
+
+[node name="HealthComponent" parent="." unique_id=1000000003 instance=ExtResource("2_health")]
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1000000004]
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=1000000005]
+collision_layer = 0
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1000000006]
+shape = SubResource("RectangleShape2D_detection")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1000000007]
+collision_layer = 0
+collision_mask = 20
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1000000008]
+shape = SubResource("RectangleShape2D_attack")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1000000009]
+shape = SubResource("CircleShape2D_monk")
+
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_body_entered"]
+[connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_body_exited"]
