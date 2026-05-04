@@ -1,5 +1,7 @@
-extends BaseEntity
+## Player.gd
+## Класс игрока, управляемого пользователем. Наследуется от BaseEntity.
 class_name Player
+extends BaseEntity
 
 enum PlayerState { IDLE, MOVE, SKILL_1, SKILL_2, DEATH }
 

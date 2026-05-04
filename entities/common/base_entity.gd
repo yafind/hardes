@@ -1,29 +1,7 @@
 ## BaseEntity.gd
 ## Базовый класс для всех юнитов ИИ (враги и союзники) с поддержкой фракций.
-##
-## Архитектура обнаружения — на сигналах, НЕ опрос каждый кадр:
-##   • DetectionArea  (Area2D) — большая зона, срабатывают сигналы body_entered/body_exited.
-##     Узел ДОЛЖЕН существовать в сцене как дочерний с именем "DetectionArea".
-##   • Area2D         (Area2D) — малая зона ближнего боя для нанесения урона.
-##
-## Соглашения о слоях коллизий (настраивается в Inspector или через код):
-##   Слой 1 (бит 0) = 1   → Игрок (герой, управляется пользователем)
-##   Слой 2 (бит 1) = 2   → Юниты фракции игрока (рыцари, союзники)
-##   Слой 3 (бит 2) = 4   → Юниты фракции врага
-##   Слой 5 (бит 4) = 16  → Здания / Замки (Area2D, без физического тела)
-##   Слой 6 (бит 5) = 32  → Статические стены / твёрдые тела замка
-##
-## collision_mask зоны DetectionArea должен видеть ПРОТИВОПОЛОЖНУЮ фракцию:
-##   Зона обнаружения врага mask = 3   (слои 1+2 = герой игрока + рыцари игрока)
-##   Зона обнаружения союзника mask = 4   (слой 3 = юниты врага)
-##   (замки всегда известны и не требуют обнаружения — находятся через запрос группы)
-##
-## Режимы волн:
-##   "attack" → обычное поведение ИИ
-##   "slack"  → юнит приостанавливается. Возобновляет ТОЛЬКО если враг вошёл в DetectionArea
-##              ИЛИ WaveManager переключился обратно на "attack".
-extends CharacterBody2D
 class_name BaseEntity
+extends CharacterBody2D
 
 enum Faction { PLAYER, ENEMY }
 enum TargetPriority { LOW = 0, MEDIUM = 50, HIGH = 80, CRITICAL = 200 }
@@ -190,7 +168,9 @@ func is_valid_target(other: Node) -> bool:
 func _is_castle(node: Node) -> bool:
 	if not is_instance_valid(node):
 		return false
-	return (faction == Faction.ENEMY and node.is_in_group("player_castle")) \t    or (faction == Faction.PLAYER and node.is_in_group("enemy_castle"))
+	var is_enemy_castle = faction == Faction.ENEMY and node.is_in_group("player_castle")
+	var is_player_castle = faction == Faction.PLAYER and node.is_in_group("enemy_castle")
+	return is_enemy_castle or is_player_castle
 
 # ── Выбор цели ────────────────────────────────────────────────────────────
 
