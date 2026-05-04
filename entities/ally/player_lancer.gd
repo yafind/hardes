@@ -1,5 +1,5 @@
-## player_archer.gd
-## PLAYER-faction AI archer unit. Extends BaseEntity — all logic lives there.
+## player_lancer.gd
+## PLAYER-faction AI lancer (spearman) unit. Extends BaseEntity — all logic lives there.
 ## This file only sets the faction, groups, and collision layers.
 ##
 ## Collision layers for THIS node (CharacterBody2D):
@@ -19,7 +19,7 @@ extends BaseEntity
 func _ready() -> void:
 	# ── Faction & groups ──────────────────────────────────────────────────────
 	faction = BaseEntity.Faction.PLAYER
-	add_to_group("player_archers")
+	add_to_group("player_lancers")
 	add_to_group("team_player")
 
 	# ── Collision layers ──────────────────────────────────────────────────────
